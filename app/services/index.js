@@ -9,7 +9,7 @@ app.use(express.json());
 
 const PORT = 8000;
 
-app.post("/login", async (req, res) => {
+app.post("/auth/login", async (req, res) => {
   if (!req.body.username) return res.status(401).send({ Message: "Username is required." });
   if (req.body.username) {
     let db = await connectDb();
@@ -23,7 +23,7 @@ app.post("/login", async (req, res) => {
   }
 });
 
-app.post("/forgot-password", async (req, res) => {
+app.post("/auth/forgot-password", async (req, res) => {
   if (!req.body.username) return res.status(401).send({ Message: "Username is required." });
   if (req.body.username) {
     let db = await connectDb();
