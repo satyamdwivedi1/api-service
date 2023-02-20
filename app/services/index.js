@@ -7,7 +7,7 @@ const connectDb = require("../database/index");
 const { ObjectId } = require("mongodb");
 app.use(express.json());
 
-const PORT = 8000;
+const PORT = process.env.PORT || 8000;
 
 app.post("/auth/login", async (req, res) => {
   if (!req.body.username) return res.status(401).send({ Message: "Username is required." });
