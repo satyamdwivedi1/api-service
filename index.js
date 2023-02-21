@@ -3,11 +3,17 @@ const cors = require("cors");
 const app = express();
 const _crypto = require("crypto");
 app.use(cors());
-const connectDb = require("../database/index");
+const connectDb = require("./app/database/index");
 const { ObjectId } = require("mongodb");
 app.use(express.json());
 
 const PORT = process.env.PORT || 8000;
+
+app.get("/", async (req, res) => {
+  let db = await connectDb();
+  let users = await db.find({}).toArray();
+  res.send({ user: users });
+});
 
 app.post("/auth/login", async (req, res) => {
   if (!req.body.username) return res.status(401).send({ Message: "Username is required." });
