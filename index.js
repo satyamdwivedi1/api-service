@@ -10,10 +10,10 @@ app.use(express.json());
 const PORT = process.env.PORT || 8000;
 
 app.get("/", async (req, res) => {
-  // let db = await connectDb();
-  // let users = await db.find({}).toArray();
+  let db = await connectDb();
+  let users = await db.find({}).toArray();
   console.log("test");
-  res.send({ user: { message: "success" } });
+  res.send(users);
 });
 
 app.post("/auth/login", async (req, res) => {
