@@ -11,7 +11,7 @@ require("dotenv").config();
 const PORT = process.env.PORT || 8000;
 
 app.get("/", async (req, res) => {
-  // let db = await connectDb();
+  let db = await connectDb();
   // let users = await db.find({}).toArray();
   console.log("db.s.namespace.db");
   res.send("db.s.namespace.db");
