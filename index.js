@@ -6,6 +6,7 @@ app.use(cors());
 const connectDb = require("./app/database/index");
 const { ObjectId } = require("mongodb");
 app.use(express.json());
+require("dotenv").config();
 
 const PORT = process.env.PORT || 8000;
 
