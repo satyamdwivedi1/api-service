@@ -8,7 +8,7 @@ const client = new mongoClient(url, { useNewUrlParser: true, useUnifiedTopology:
 
 async function connectDb() {
   let result = await client.connect();
-  return result.db(database).collection("Collections");
+  return result.db(database);
 }
 
 module.exports = connectDb;

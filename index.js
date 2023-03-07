@@ -17,8 +17,14 @@ app.get("/", async (req, res) => {
 
 app.get("/test-db", async (req, res) => {
   let db = await connectDb();
-  let users = await db.find({}).toArray();
+  let users = await db.collection("Collections").find({}).toArray();
   res.status(200).json(users);
+});
+
+app.get("/my-profile", async (req, res) => {
+  let db = await connectDb();
+  let users = await db.collection("Collections").find({}).toArray();
+  res.status(200).json(users[0]);
 });
 
 app.post("/auth/login", async (req, res) => {
@@ -26,8 +32,9 @@ app.post("/auth/login", async (req, res) => {
   if (req.body.username) {
     let db = await connectDb();
     users = await db
+      .collection("Collections")
       .find({
-        $or: [{ Email: { $regex: req.body.username } }, { Mobile: { $regex: req.body.username } }],
+        $or: [{ Email: req.body.username }, { Mobile: req.body.username }],
       })
       .toArray();
     if (users.length == 0) return res.status(404).send({ Message: "Invalid Username." });
@@ -41,7 +48,7 @@ app.post("/auth/forgot-password", async (req, res) => {
     let db = await connectDb();
     users = await db
       .find({
-        $or: [{ Email: { $regex: req.body.username } }, { Mobile: { $regex: req.body.username } }],
+        $or: [{ Email: req.body.username }, { Mobile: req.body.username }],
       })
       .toArray();
     if (users.length == 0) return res.status(404).send({ Message: "Invalid Username." });
