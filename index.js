@@ -11,9 +11,14 @@ require("dotenv").config();
 const PORT = process.env.PORT || 8000;
 
 app.get("/", async (req, res) => {
+  const message = `server is running on port ${process.env.PORT}`;
+  res.send(message);
+});
+
+app.get("/test-db", async (req, res) => {
   let db = await connectDb();
   let users = await db.find({}).toArray();
-  res.send(users);
+  res.status(200).json(users);
 });
 
 app.post("/auth/login", async (req, res) => {
