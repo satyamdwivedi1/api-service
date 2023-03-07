@@ -8,10 +8,10 @@ const { ObjectId } = require("mongodb");
 app.use(express.json());
 require("dotenv").config();
 
-const PORT = 3000;
+const PORT = process.env.PORT || 8000;
 
 app.get("/", async (req, res) => {
-  const message = `server is running on port ${PORT}`;
+  const message = `server is running on port ${process.env.PORT}`;
   res.send(message);
 });
 
@@ -50,6 +50,4 @@ app.post("/auth/forgot-password", async (req, res) => {
   }
 });
 
-connectDb().then(() => {
-  app.listen(PORT, console.log(`server is listening ${PORT}`));
-});
+app.listen(PORT, console.log(`server is listening ${PORT}`));
