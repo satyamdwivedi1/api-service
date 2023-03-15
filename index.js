@@ -27,6 +27,21 @@ app.get("/my-profile", async (req, res) => {
   res.status(200).json(users[0]);
 });
 
+app.get("/all-purchases/:type?", async (req, res) => {
+  let db = await connectDb();
+  let products = [];
+  if (req.params.type) {
+    if (req.params.type == "buy" || req.params.type == "sell") {
+      products = await db.collection("Products").find({ productType: req.params.type }).toArray();
+    } else {
+      return res.status(404).send({ Message: "Product type is invalid, It should be buy or sell." });
+    }
+  } else {
+    products = await db.collection("Products").find({}).toArray();
+  }
+  res.status(200).json(products);
+});
+
 app.post("/auth/login", async (req, res) => {
   if (!req.body.username) return res.status(401).send({ Message: "Username is required." });
   if (req.body.username) {
