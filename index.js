@@ -93,11 +93,6 @@ app.delete("/deleteProduct", async (req, res) => {
     if (typeof req.query.productId === "string") {
       product = await db.collection("Products").deleteOne({ _id: ObjectId(req.query.productId) });
     }
-    if (typeof req.query.productId === "object") {
-      const productsIds = req.query.productId.map((product) => ObjectId(product._id));
-      product = await db.collection("Products").remove({ _id: { $in: productsIds } });
-      console.log(product, productsIds);
-    }
   } else {
     return res.status(404).send({ Message: `Please provide the product id` });
   }
@@ -112,6 +107,7 @@ app.post("/auth/login", async (req, res) => {
       .collection("Collections")
       .find({
         $or: [{ Email: req.body.username }, { Mobile: req.body.username }],
+        $and: [{ Password: req.body.password }],
       })
       .toArray();
     if (users.length == 0) return res.status(404).send({ Message: "Invalid Username." });
