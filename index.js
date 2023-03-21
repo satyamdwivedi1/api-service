@@ -99,6 +99,14 @@ app.delete("/deleteProduct", async (req, res) => {
   res.status(200).json({ message: "Product deleted successfully" });
 });
 
+app.get("/getAllCount", async (req, res) => {
+  let db = await connectDb();
+  let products = await db.collection("Products").find({}).toArray();
+  let allBroughtProducts = await db.collection("Products").find({ productType: "buy" }).toArray();
+  let allClients = allBroughtProducts.filter((v, i, a) => a.findIndex((v2) => v2.sellerName === v.sellerName) === i);
+  res.status(200).json({ totalPurchases: products.length, totalClients: allClients.length });
+});
+
 app.post("/auth/login", async (req, res) => {
   if (!req.body.username) return res.status(401).send({ Message: "Username is required." });
   if (req.body.username) {
