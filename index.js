@@ -109,6 +109,7 @@ app.get("/getAllCount", async (req, res) => {
 
 app.post("/auth/login", async (req, res) => {
   if (!req.body.username) return res.status(401).send({ Message: "Username is required." });
+  if (!req.body.password) return res.status(401).send({ Message: "Password is required." });
   if (req.body.username) {
     let db = await connectDb();
     users = await db
@@ -118,7 +119,7 @@ app.post("/auth/login", async (req, res) => {
         $and: [{ Password: req.body.password }],
       })
       .toArray();
-    if (users.length == 0) return res.status(404).send({ Message: "Invalid Username." });
+    if (users.length == 0) return res.status(404).send({ Message: "Invalid Username or Password." });
     res.status(201).send({ Message: "Logged in successfully" });
   }
 });
