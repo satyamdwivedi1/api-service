@@ -109,53 +109,58 @@ app.get("/getAllCount", async (req, res) => {
 
 app.get("/getAllSellAndBuy", async (req, res) => {
   let allSortingDates = [
-    { startDate: "2023-01-01", endDate: "2023-01-31", month: "Jan" },
-    { startDate: "2023-02-01", endDate: "2023-02-29", month: "Feb" },
-    { startDate: "2023-03-01", endDate: "2023-03-31", month: "Mar" },
-    { startDate: "2023-04-01", endDate: "2023-04-31", month: "Apr" },
-    { startDate: "2023-05-01", endDate: "2023-05-31", month: "May" },
-    { startDate: "2023-06-01", endDate: "2023-06-31", month: "Jun" },
-    { startDate: "2023-07-01", endDate: "2023-07-31", month: "July" },
-    { startDate: "2023-08-01", endDate: "2023-08-31", month: "Aug" },
-    { startDate: "2023-09-01", endDate: "2023-09-31", month: "Sep" },
-    { startDate: "2023-10-01", endDate: "2023-10-31", month: "Oct" },
-    { startDate: "2023-11-01", endDate: "2023-11-31", month: "Nov" },
-    { startDate: "2023-12-01", endDate: "2023-12-31", month: "Dec" },
+    { startDate: "2023-01-01", endDate: "2023-01-31", month: "Jan", sortId: 1 },
+    { startDate: "2023-02-01", endDate: "2023-02-29", month: "Feb", sortId: 2 },
+    { startDate: "2023-03-01", endDate: "2023-03-31", month: "Mar", sortId: 3 },
+    { startDate: "2023-04-01", endDate: "2023-04-31", month: "Apr", sortId: 4 },
+    { startDate: "2023-05-01", endDate: "2023-05-31", month: "May", sortId: 5 },
+    { startDate: "2023-06-01", endDate: "2023-06-31", month: "Jun", sortId: 6 },
+    { startDate: "2023-07-01", endDate: "2023-07-31", month: "July", sortId: 7 },
+    { startDate: "2023-08-01", endDate: "2023-08-31", month: "Aug", sortId: 8 },
+    { startDate: "2023-09-01", endDate: "2023-09-31", month: "Sep", sortId: 9 },
+    { startDate: "2023-10-01", endDate: "2023-10-31", month: "Oct", sortId: 10 },
+    { startDate: "2023-11-01", endDate: "2023-11-31", month: "Nov", sortId: 11 },
+    { startDate: "2023-12-01", endDate: "2023-12-31", month: "Dec", sortId: 12 },
   ];
   let db = await connectDb();
   let allBroughtProducts = [];
   let allSoldProducts = [];
-  allSortingDates.forEach(async (x) => {
-    allBroughtProducts.push(await getSortedProduct(db, x.startDate, x.endDate, x.month, "buy"));
-  });
-  allSortingDates.forEach(async (x) => {
-    allSoldProducts.push(await getSortedProduct(db, x.startDate, x.endDate, x.month, "sell"));
-  });
+  for (const x of allSortingDates) {
+    let product = await getSortedProduct(db, x, "buy");
+    allBroughtProducts.push(product);
+  }
+  for (const x of allSortingDates) {
+    allSoldProducts.push(await getSortedProduct(db, x, "sell"));
+  }
   await db.collection("Products").find().toArray();
   let profitAndLoss = [];
-  allSoldProducts.forEach((ele) => {
-    allBroughtProducts.forEach((element) => {
-      if (ele.month === element.month) {
-        profitAndLoss.push({ month: element.month, price: ele.amount - element.amount });
+  for (const x of allSoldProducts) {
+    for (const y of allBroughtProducts) {
+      if (x.month === y.month) {
+        profitAndLoss.push({ month: y.month, price: x.amount - y.amount });
       }
-    });
+    }
+  }
+  res.status(200).json({
+    allSoldProducts: allSoldProducts.sort((a, b) => a.sortId - b.sortId),
+    allBroughtProducts: allBroughtProducts.sort((a, b) => a.sortId - b.sortId),
+    profitAndLoss: profitAndLoss,
   });
-  res.status(200).json({ allSoldProducts: allSoldProducts, allBroughtProducts: allBroughtProducts, profitAndLoss: profitAndLoss });
 });
 
-async function getSortedProduct(db, startDate, endDate, month, type) {
+async function getSortedProduct(db, x, type) {
   const product = await db
     .collection("Products")
     .find({
       updatedOn: {
-        $gt: new Date(startDate).toISOString(),
-        $lte: new Date(endDate).toISOString(),
+        $gt: new Date(x.startDate).toISOString(),
+        $lte: new Date(x.endDate).toISOString(),
       },
       productType: type,
     })
     .toArray();
   let productPricesList = product.map((e) => +e.productPrice);
-  return { amount: productPricesList.reduce((partialSum, a) => partialSum + a, 0), month: month };
+  return { amount: productPricesList.reduce((partialSum, a) => partialSum + a, 0), month: x.month, sortId: x.sortId };
 }
 
 app.post("/auth/login", async (req, res) => {
