@@ -107,6 +107,57 @@ app.get("/getAllCount", async (req, res) => {
   res.status(200).json({ totalPurchases: products.length, totalClients: allClients.length });
 });
 
+app.get("/getAllSellAndBuy", async (req, res) => {
+  let allSortingDates = [
+    { startDate: "2023-01-01", endDate: "2023-01-31", month: "Jan" },
+    { startDate: "2023-02-01", endDate: "2023-02-29", month: "Feb" },
+    { startDate: "2023-03-01", endDate: "2023-03-31", month: "Mar" },
+    { startDate: "2023-04-01", endDate: "2023-04-31", month: "Apr" },
+    { startDate: "2023-05-01", endDate: "2023-05-31", month: "May" },
+    { startDate: "2023-06-01", endDate: "2023-06-31", month: "Jun" },
+    { startDate: "2023-07-01", endDate: "2023-07-31", month: "July" },
+    { startDate: "2023-08-01", endDate: "2023-08-31", month: "Aug" },
+    { startDate: "2023-09-01", endDate: "2023-09-31", month: "Sep" },
+    { startDate: "2023-10-01", endDate: "2023-10-31", month: "Oct" },
+    { startDate: "2023-11-01", endDate: "2023-11-31", month: "Nov" },
+    { startDate: "2023-12-01", endDate: "2023-12-31", month: "Dec" },
+  ];
+  let db = await connectDb();
+  let allBroughtProducts = [];
+  let allSoldProducts = [];
+  allSortingDates.forEach(async (x) => {
+    allBroughtProducts.push(await getSortedProduct(db, x.startDate, x.endDate, x.month, "buy"));
+  });
+  allSortingDates.forEach(async (x) => {
+    allSoldProducts.push(await getSortedProduct(db, x.startDate, x.endDate, x.month, "sell"));
+  });
+  await db.collection("Products").find().toArray();
+  let profitAndLoss = [];
+  allSoldProducts.forEach((ele) => {
+    allBroughtProducts.forEach((element) => {
+      if (ele.month === element.month) {
+        profitAndLoss.push({ month: element.month, price: ele.amount - element.amount });
+      }
+    });
+  });
+  res.status(200).json({ allSoldProducts: allSoldProducts, allBroughtProducts: allBroughtProducts, profitAndLoss: profitAndLoss });
+});
+
+async function getSortedProduct(db, startDate, endDate, month, type) {
+  const product = await db
+    .collection("Products")
+    .find({
+      updatedOn: {
+        $gt: new Date(startDate).toISOString(),
+        $lte: new Date(endDate).toISOString(),
+      },
+      productType: type,
+    })
+    .toArray();
+  let productPricesList = product.map((e) => +e.productPrice);
+  return { amount: productPricesList.reduce((partialSum, a) => partialSum + a, 0), month: month };
+}
+
 app.post("/auth/login", async (req, res) => {
   if (!req.body.username) return res.status(401).send({ Message: "Username is required." });
   if (!req.body.password) return res.status(401).send({ Message: "Password is required." });
