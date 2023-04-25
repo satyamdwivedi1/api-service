@@ -137,7 +137,8 @@ app.get("/getAllSellAndBuy", async (req, res) => {
   for (const x of allSoldProducts) {
     for (const y of allBroughtProducts) {
       if (x.month === y.month) {
-        profitAndLoss.push({ month: y.month, price: x.amount - y.amount });
+        const price = x.amount - y.amount;
+        profitAndLoss.push({ month: y.month, price: price, bgColor: price > 0 ? "green" : "red" });
       }
     }
   }
