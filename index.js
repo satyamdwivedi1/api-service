@@ -17,20 +17,20 @@ app.get("/", async (req, res) => {
 
 app.get("/test-db", async (req, res) => {
   let db = await connectDb();
-  let users = await db.collection("Collections").find({}).toArray();
+  let users = await db.collection("Users").find({}).toArray();
   res.status(200).json(users);
 });
 
 app.get("/my-profile", async (req, res) => {
   let db = await connectDb();
-  let users = await db.collection("Collections").find({}).toArray();
+  let users = await db.collection("Users").find({}).toArray();
   res.status(200).json(users[0]);
 });
 
-app.get("/all-purchases/:type?", async (req, res) => {
+app.post("/all-purchases/:type?", async (req, res) => {
   let db = await connectDb();
   let products = [];
-  if (req.params.type) {
+  if (req.params.type && req.body && !req.body?.filters) {
     if (req.params.type == "buy" || req.params.type == "sell") {
       products = await db.collection("Products").find({ productType: req.params.type }).toArray();
     } else {
@@ -38,6 +38,33 @@ app.get("/all-purchases/:type?", async (req, res) => {
     }
   } else {
     products = await db.collection("Products").find({}).toArray();
+  }
+  if (req.body && req.body?.filters && req.params.type) {
+    if (req.body?.filters.length === 1) {
+      const filterByCreated = req.body?.filters;
+      products = await db
+        .collection("Products")
+        .find({
+          updatedOn: {
+            $gte: new Date(filterByCreated.value),
+          },
+          productType: req.params.type,
+        })
+        .toArray();
+      console.log(products);
+    } else {
+      const filterByRange = req.body?.filters;
+      products = await db
+        .collection("Products")
+        .find({
+          updatedOn: {
+            $gt: new Date(filterByRange[0].value).toISOString(),
+            $lte: new Date(filterByRange[1].value).toISOString(),
+          },
+          productType: req.params.type,
+        })
+        .toArray();
+    }
   }
   res.status(200).json(products);
 });
@@ -170,7 +197,7 @@ app.post("/auth/login", async (req, res) => {
   if (req.body.username) {
     let db = await connectDb();
     users = await db
-      .collection("Collections")
+      .collection("Users")
       .find({
         $or: [{ Email: req.body.username }, { Mobile: req.body.username }],
         $and: [{ Password: req.body.password }],
