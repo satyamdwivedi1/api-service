@@ -46,12 +46,11 @@ app.post("/all-purchases/:type?", async (req, res) => {
         .collection("Products")
         .find({
           updatedOn: {
-            $gte: new Date(filterByCreated.value),
+            $gte: new Date(filterByCreated[0].value),
           },
           productType: req.params.type,
         })
         .toArray();
-      console.log(products);
     } else {
       const filterByRange = req.body?.filters;
       products = await db
