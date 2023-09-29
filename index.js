@@ -227,4 +227,25 @@ app.post("/auth/forgot-password", async (req, res) => {
   }
 });
 
+// socket-io connection
+io.on("connection", (socket) => {
+  console.log("A user connected");
+
+  // Handle socket events here
+  socket.on("message", (message) => {
+    console.log(message);
+    message.user.message = message.message;
+    message.user.time = new Date();
+    // Broadcast the message to all connected clients
+    io.emit("chat message", message);
+
+    // Acknowledge the receipt of the message to the sender
+    socket.emit("message received", `Your message "${message}" was received.`);
+  });
+
+  socket.on("disconnect", () => {
+    console.log("User disconnected");
+  });
+});
+
 server.listen(PORT, console.log(`server is listening ${PORT}`));
