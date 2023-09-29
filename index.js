@@ -7,6 +7,11 @@ const connectDb = require("./app/database/index");
 const { ObjectId } = require("mongodb");
 app.use(express.json());
 require("dotenv").config();
+const http = require("http");
+const server = http.createServer(app);
+const io = require("socket.io")(server, {
+  cors: { origin: "*" },
+});
 
 const PORT = process.env.PORT || 8000;
 
@@ -222,4 +227,4 @@ app.post("/auth/forgot-password", async (req, res) => {
   }
 });
 
-app.listen(PORT, console.log(`server is listening ${PORT}`));
+server.listen(PORT, console.log(`server is listening ${PORT}`));
