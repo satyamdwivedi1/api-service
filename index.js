@@ -2,16 +2,16 @@ const express = require("express");
 const cors = require("cors");
 const app = express();
 const _crypto = require("crypto");
-app.use(cors());
 const connectDb = require("./app/database/index");
 const { ObjectId } = require("mongodb");
 app.use(express.json());
 require("dotenv").config();
 const http = require("http");
 const server = http.createServer(app);
-const io = require("socket.io")(server, {
-  cors: { origin: "*" },
-});
+// const io = require("socket.io")(server, {
+//   cors: { origin: "*" },
+// });
+app.use(cors());
 
 const PORT = process.env.PORT || 8000;
 
@@ -228,24 +228,24 @@ app.post("/auth/forgot-password", async (req, res) => {
 });
 
 // socket-io connection
-io.on("connection", (socket) => {
-  console.log("A user connected");
+// io.on("connection", (socket) => {
+//   console.log("A user connected");
 
-  // Handle socket events here
-  socket.on("message", (message) => {
-    console.log(message);
-    message.user.message = message.message;
-    message.user.time = new Date();
-    // Broadcast the message to all connected clients
-    io.emit("chat message", message);
+//   // Handle socket events here
+//   socket.on("message", (message) => {
+//     message.user.message = message.message;
+//     message.user.time = new Date();
+//     // Broadcast the message to all connected clients
+//     console.log(message);
+//     io.emit("chat message", message);
 
-    // Acknowledge the receipt of the message to the sender
-    socket.emit("message received", `Your message "${message}" was received.`);
-  });
+//     // Acknowledge the receipt of the message to the sender
+//     socket.emit("message received", `Your message "${message}" was received.`);
+//   });
 
-  socket.on("disconnect", () => {
-    console.log("User disconnected");
-  });
-});
+//   socket.on("disconnect", () => {
+//     console.log("User disconnected");
+//   });
+// });
 
 server.listen(PORT, console.log(`server is listening ${PORT}`));
