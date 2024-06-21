@@ -16,7 +16,7 @@ app.use(cors());
 const PORT = process.env.PORT || 8000;
 
 app.get("/", async (req, res) => {
-  const message = `Server is running on port ${process.env.PORT}`;
+  const message = `server is running on port ${process.env.PORT}`;
   res.send(message);
 });
 
