@@ -138,21 +138,33 @@ app.get("/getAllCount", async (req, res) => {
   res.status(200).json({ totalPurchases: products.length, totalClients: allClients.length });
 });
 
-app.get("/getAllSellAndBuy", async (req, res) => {
-  let allSortingDates = [
-    { startDate: "2023-01-01", endDate: "2023-01-31", month: "Jan", sortId: 1 },
-    { startDate: "2023-02-01", endDate: "2023-02-29", month: "Feb", sortId: 2 },
-    { startDate: "2023-03-01", endDate: "2023-03-31", month: "Mar", sortId: 3 },
-    { startDate: "2023-04-01", endDate: "2023-04-31", month: "Apr", sortId: 4 },
-    { startDate: "2023-05-01", endDate: "2023-05-31", month: "May", sortId: 5 },
-    { startDate: "2023-06-01", endDate: "2023-06-31", month: "Jun", sortId: 6 },
-    { startDate: "2023-07-01", endDate: "2023-07-31", month: "July", sortId: 7 },
-    { startDate: "2023-08-01", endDate: "2023-08-31", month: "Aug", sortId: 8 },
-    { startDate: "2023-09-01", endDate: "2023-09-31", month: "Sep", sortId: 9 },
-    { startDate: "2023-10-01", endDate: "2023-10-31", month: "Oct", sortId: 10 },
-    { startDate: "2023-11-01", endDate: "2023-11-31", month: "Nov", sortId: 11 },
-    { startDate: "2023-12-01", endDate: "2023-12-31", month: "Dec", sortId: 12 },
+const generateAllSortingDates = (year) => {
+  const months = [
+    { name: "Jan", days: 31 },
+    { name: "Feb", days: year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0) ? 29 : 28 }, // Leap year check
+    { name: "Mar", days: 31 },
+    { name: "Apr", days: 30 },
+    { name: "May", days: 31 },
+    { name: "Jun", days: 30 },
+    { name: "Jul", days: 31 },
+    { name: "Aug", days: 31 },
+    { name: "Sep", days: 30 },
+    { name: "Oct", days: 31 },
+    { name: "Nov", days: 30 },
+    { name: "Dec", days: 31 },
   ];
+
+  return months.map((month, index) => ({
+    startDate: `${year}-${String(index + 1).padStart(2, "0")}-01`,
+    endDate: `${year}-${String(index + 1).padStart(2, "0")}-${month.days}`,
+    month: month.name,
+    sortId: index + 1,
+  }));
+};
+
+app.get("/getAllSellAndBuy", async (req, res) => {
+  const currentYear = new Date().getFullYear();
+  const allSortingDates = generateAllSortingDates(currentYear);
   let db = await connectDb();
   let allBroughtProducts = [];
   let allSoldProducts = [];
